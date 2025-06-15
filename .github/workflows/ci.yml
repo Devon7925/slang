@@ -151,10 +151,10 @@ jobs:
               mkdir generators
               cmake --install build --config Release --component generators --prefix generators
               emcmake cmake -DSLANG_GENERATORS_PATH=generators/bin --preset emscripten -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
-              cmake --build --preset emscripten --config "$cmake_config" --target slang-wasm slangd
-              mkdir "build.em/$cmake_config/bin/smoke"
-              cp tests/wasm/smoke/* "build.em/$cmake_config/bin/smoke/"
-              cd "build.em/$cmake_config/bin"
+              cmake --build --preset emscripten --config "Release" --target slang-wasm slangd
+              mkdir -p "build.em/Release/bin/smoke"
+              cp tests/wasm/smoke/* "build.em/Release/bin/smoke/"
+              cd "build.em/Release/bin"
               [ -f "slang-wasm.wasm" ]
               [ -f "slang-wasm.js" ]
               [ -f "slangd.wasm" ]
@@ -192,11 +192,11 @@ jobs:
         if: steps.filter.outputs.should-run == 'true' && matrix.platform == 'wasm'
         uses: actions/upload-artifact@v4
         with:
-          name: wasm-${{ matrix.config }}
+          name: wasm-Release
           path: |
-            build.em/${{ matrix.config }}/bin/slang-wasm.*
-            build.em/${{ matrix.config }}/bin/slangd.*
-            build.em/${{ matrix.config }}/bin/*.d.ts
+            build.em/Release/bin/slang-wasm.*
+            build.em/Release/bin/slangd.*
+            build.em/Release/bin/*.d.ts
 
       - name: Test Slang
         if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && (matrix.platform != 'aarch64' || matrix.os == 'macos')
