@@ -38,7 +38,6 @@ if(EMSCRIPTEN)
             core
             compiler-core
             slang
-            slang-reflect-headers
             slang-capability-defs
             slang-fiddle-output
             slang-lookup-tables
