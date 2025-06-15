@@ -26,4 +26,25 @@ if(EMSCRIPTEN)
         slang-wasm
         PUBLIC "--bind" "--emit-tsd" "interface.d.ts" "-s" "EXPORT_ES6=1"
     )
+
+    slang_add_target(
+        ${slang_SOURCE_DIR}/tools/slangd
+        EXECUTABLE
+        EXCLUDE_FROM_ALL
+        USE_FEWER_WARNINGS
+        LINK_WITH_PRIVATE
+            miniz
+            lz4_static
+            core
+            compiler-core
+            slang
+            slang-reflect-headers
+            slang-capability-defs
+            slang-lookup-tables
+        INCLUDE_DIRECTORIES_PUBLIC ${slang_SOURCE_DIR}/include ${slang_SOURCE_DIR}/tools/slangd
+    )
+    target_link_options(
+        slangd
+        PUBLIC "--bind" "--emit-tsd" "slangd.d.ts" "-s" "EXPORT_ES6=1"
+    )
 endif()

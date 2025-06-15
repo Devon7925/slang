@@ -96,7 +96,7 @@ slang_add_target(
 #
 # Language Server
 #
-if(SLANG_ENABLE_SLANGD)
+if(SLANG_ENABLE_SLANGD AND NOT EMSCRIPTEN)
     slang_add_target(
         slangd
         EXECUTABLE

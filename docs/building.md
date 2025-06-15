@@ -96,15 +96,17 @@ cmake --workflow --preset generators --fresh
 mkdir generators
 cmake --install build --prefix generators --component generators
 
+# Prerequisites:
+# On a Linux host, ensure CMake and Ninja are installed (e.g. `sudo apt-get install cmake ninja-build`).
+# emcmake is available only when emsdk_env.sh sets up the environment correctly.
 # Configure the build with emcmake.
-# emcmake is available only when emsdk_env setup the environment correctly.
 pushd ../emsdk
-source ./emsdk_env # For Windows, emsdk_env.bat
+source ./emsdk_env.sh # For Windows, use emsdk_env.bat
 popd
 emcmake cmake -DSLANG_GENERATORS_PATH=generators/bin --preset emscripten -G "Ninja"
 
-# Build slang-wasm.js and slang-wasm.wasm in build.em/Release/bin
-cmake --build --preset emscripten --target slang-wasm
+# Build the WASM modules (JS+WASM): slang-wasm and slangd (language-server) in build.em/Release/bin
+cmake --build --preset emscripten --target slang-wasm slangd
 ```
 
 > Note: If the last build step fails, try running the command that `emcmake`
