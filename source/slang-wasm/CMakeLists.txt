@@ -40,6 +40,7 @@ if(EMSCRIPTEN)
             slang
             slang-reflect-headers
             slang-capability-defs
+            slang-fiddle-output
             slang-lookup-tables
         INCLUDE_DIRECTORIES_PUBLIC ${slang_SOURCE_DIR}/include ${slang_SOURCE_DIR}/tools/slangd
     )
