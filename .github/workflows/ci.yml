@@ -190,7 +190,7 @@ jobs:
 
       - name: Upload WASM artifacts
         if: steps.filter.outputs.should-run == 'true' && matrix.platform == 'wasm'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wasm-${{ matrix.config }}
           path: |
