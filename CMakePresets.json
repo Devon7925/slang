@@ -313,18 +313,16 @@
     {
       "name": "slang-llvm",
       "steps": [
-        {
-          "type": "configure",
-          "name": "slang-llvm"
-        },
-        {
-          "type": "build",
-          "name": "slang-llvm"
-        },
-        {
-          "type": "package",
-          "name": "slang-llvm"
-        }
+        { "type": "configure", "name": "slang-llvm" },
+        { "type": "build",     "name": "slang-llvm" },
+        { "type": "package",   "name": "slang-llvm" }
+      ]
+    },
+    {
+      "name": "wasi",
+      "steps": [
+        { "type": "configure", "name": "wasi" },
+        { "type": "build",     "name": "wasi" }
       ]
     }
   ]
