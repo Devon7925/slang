@@ -22,3 +22,13 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_C_FLAGS_INIT       "-target wasm32-wasi -O3")
 set(CMAKE_CXX_FLAGS_INIT     "-target wasm32-wasi -O3")
 set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--no-entry -Wl,--export-all -Wl,--allow-undefined")
+
+# Require a WASI sysroot from WASI_SDK_PATH
+if(NOT DEFINED ENV{WASI_SDK_PATH})
+  message(FATAL_ERROR "WASI_SDK_PATH environment variable must point to a wasi-sdk installation")
+endif()
+set(WASI_SDK_PATH $ENV{WASI_SDK_PATH})
+set(CMAKE_SYSROOT "${WASI_SDK_PATH}/share/wasi-sysroot")
+set(CMAKE_C_FLAGS_INIT       "-target wasm32-wasi -O3 --sysroot=${CMAKE_SYSROOT}")
+set(CMAKE_CXX_FLAGS_INIT     "-target wasm32-wasi -O3 --sysroot=${CMAKE_SYSROOT}")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,--no-entry -Wl,--export-all -Wl,--allow-undefined --sysroot=${CMAKE_SYSROOT}")

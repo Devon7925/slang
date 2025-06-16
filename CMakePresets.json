@@ -102,7 +102,8 @@
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/wasi-toolchain.cmake",
         "CMAKE_CONFIGURATION_TYPES": "Release",
-        "SLANG_SLANG_LLVM_FLAVOR": "DISABLE"
+        "SLANG_SLANG_LLVM_FLAVOR": "DISABLE",
+        "SLANG_VERSION_FULL": "0.0.0"
       }
     }
   ],
