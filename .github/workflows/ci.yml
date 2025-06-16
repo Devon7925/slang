@@ -151,14 +151,20 @@ jobs:
               mkdir generators
               cmake --install build --config Release --component generators --prefix generators
               emcmake cmake -DSLANG_GENERATORS_PATH=generators/bin --preset emscripten -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
-              cmake --build --preset emscripten --config "Release" --target slang-wasm slangd
+              # Build the compiler frontend via Emscripten
+              cmake --build --preset emscripten --config "Release" --target slang-wasm
               mkdir -p "build.em/Release/bin/smoke"
               cp tests/wasm/smoke/* "build.em/Release/bin/smoke/"
+
+              # Build standalone WASI module for the language server
+              cmake --workflow --preset wasi --fresh
+              cmake --build --preset wasi --config Release
+              [ -f "build.wasi/Release/bin/slangd.wasm" ]
+
+              # Run smoke tests for the WASM compiler
               cd "build.em/Release/bin"
               [ -f "slang-wasm.wasm" ]
               [ -f "slang-wasm.js" ]
-              [ -f "slangd.wasm" ]
-              [ -f "slangd.js" ]
               node smoke/smoke-test.js smoke/rand_float.slang computeMain
           else
             if [[ "${{ matrix.os }}" =~ "windows" && "${{ matrix.config }}" != "release" && "${{ matrix.config }}" != "releaseWithDebugInfo" ]]; then
@@ -195,8 +201,8 @@ jobs:
           name: wasm-Release
           path: |
             build.em/Release/bin/slang-wasm.*
-            build.em/Release/bin/slangd.*
             build.em/Release/bin/*.d.ts
+            build.wasi/Release/bin/slangd.wasm
 
       - name: Test Slang
         if: steps.filter.outputs.should-run == 'true' && matrix.platform != 'wasm' && (matrix.platform != 'aarch64' || matrix.os == 'macos')

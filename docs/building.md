@@ -105,8 +105,18 @@ source ./emsdk_env.sh # For Windows, use emsdk_env.bat
 popd
 emcmake cmake -DSLANG_GENERATORS_PATH=generators/bin --preset emscripten -G "Ninja"
 
-# Build the WASM modules (JS+WASM): slang-wasm and slangd (language-server) in build.em/Release/bin
-cmake --build --preset emscripten --target slang-wasm slangd
+# Build the WASM modules (JS+WASM): slang-wasm (language compiler) via Emscripten
+cmake --build --preset emscripten --target slang-wasm
+
+## WASI standalone build for slangd (language server)
+To build a pure WASI module of the language server (for use with WASI preview1 hosts),
+use the `wasi` preset:
+```bash
+# Configure for standalone WASI
+cmake --workflow --preset wasi --fresh
+# Build slangd.wasm
+cmake --build --preset wasi --config Release
+```
 ```
 
 > Note: If the last build step fails, try running the command that `emcmake`

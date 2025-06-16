@@ -93,6 +93,17 @@
         "SLANG_SLANG_LLVM_FLAVOR": "DISABLE",
         "SLANG_ENABLE_SLANG_RHI": false
       }
+    },
+    {
+      "name": "wasi",
+      "description": "WASI-based Wasm build (preview1)",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/build.wasi",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/wasi-toolchain.cmake",
+        "CMAKE_CONFIGURATION_TYPES": "Release",
+        "SLANG_SLANG_LLVM_FLAVOR": "DISABLE"
+      }
     }
   ],
   "buildPresets": [
@@ -135,7 +146,7 @@
       "name": "emscripten",
       "configurePreset": "emscripten",
       "configuration": "Release",
-      "targets": ["slang-wasm", "slangd"]
+      "targets": ["slang-wasm"]
     },
     {
       "name": "generators",
@@ -148,6 +159,12 @@
       "inherits": "release",
       "configurePreset": "slang-llvm",
       "targets": ["slang-llvm"]
+    },
+    {
+      "name": "wasi",
+      "configurePreset": "wasi",
+      "configuration": "Release",
+      "targets": ["slangd"]
     }
   ],
   "packagePresets": [
