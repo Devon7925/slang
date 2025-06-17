@@ -37,7 +37,9 @@
 #include <mach-o/dyld.h>
 #endif
 
+#if !SLANG_WASM
 #include <filesystem>
+#endif
 #include <limits.h> /* PATH_MAX */
 #include <stdio.h>
 #include <stdlib.h>
@@ -129,6 +131,12 @@ namespace Slang
     const UnownedStringSlice& inPrefix,
     Slang::String& outFileName)
 {
+#if SLANG_WASM
+    // mkstemp is not available in WASI.
+    SLANG_UNUSED(inPrefix);
+    SLANG_UNUSED(outFileName);
+    return SLANG_E_NOT_IMPLEMENTED;
+#else
     StringBuilder builder;
     builder << "/tmp/" << inPrefix << "-XXXXXX";
 
@@ -153,6 +161,7 @@ namespace Slang
     SLANG_ASSERT(File::exists(outFileName));
 
     return SLANG_OK;
+#endif
 }
 #endif
 
@@ -163,6 +172,11 @@ namespace Slang
     // As long as file extension is executable, it can be executed
     return SLANG_OK;
 #else
+#    if SLANG_WASM
+    SLANG_UNUSED(fileName);
+    // WASI does not support chmod. Assume it's not needed.
+    return SLANG_OK;
+#    else
     struct stat st;
     if (::stat(fileName.getBuffer(), &st) != 0)
     {
@@ -179,6 +193,7 @@ namespace Slang
         return SLANG_FAIL;
     }
     return SLANG_OK;
+#    endif
 #endif
 }
 
@@ -695,7 +710,32 @@ bool Path::createDirectoryRecursive(const String& path)
     ::free(absPath);
     return SLANG_OK;
 #else
-#if 1
+#    if SLANG_WASM
+    // This is a mechanism to get an approximation of canonical path since we don't have 'realpath' on WASI.
+    if (isAbsolute(path))
+    {
+        // If it's absolute, we can just simplify as is
+        canonicalPathOut = Path::simplify(path);
+        return SLANG_OK;
+    }
+    else
+    {
+        char buffer[PATH_MAX];
+        // https://linux.die.net/man/3/getcwd
+        const char* getCwdPath = getcwd(buffer, SLANG_COUNT_OF(buffer));
+        if (!getCwdPath)
+        {
+            return SLANG_FAIL;
+        }
+
+        // Okay combine the paths
+        String combinedPaths = Path::combine(String(getCwdPath), path);
+        // Simplify
+        canonicalPathOut = Path::simplify(combinedPaths);
+        return SLANG_OK;
+    }
+#    else
+#        if 1
 
     // http://man7.org/linux/man-pages/man3/realpath.3.html
     char* canonicalPath = ::realpath(path.begin(), nullptr);
@@ -706,7 +746,7 @@ bool Path::createDirectoryRecursive(const String& path)
         return SLANG_OK;
     }
     return SLANG_FAIL;
-#else
+#        else
     // This is a mechanism to get an approximation of canonical path if we don't have 'realpath'
     // We only can get if the file exists. This checks that the ../. etc are really valid
     SlangPathType pathType;
@@ -733,7 +773,8 @@ bool Path::createDirectoryRecursive(const String& path)
         canonicalPathOut = Path::simplify(combinedPaths);
         return SLANG_OK;
     }
-#endif
+#        endif
+#    endif
 #endif
 }
 
@@ -746,6 +787,11 @@ String Path::getCurrentPath()
 
 String Path::getRelativePath(String base, String path)
 {
+#if SLANG_WASM
+    // `std::filesystem` is not available on WASI.
+    SLANG_UNUSED(base);
+    return path;
+#else
     std::filesystem::path p1(base.getBuffer());
     std::filesystem::path p2(path.getBuffer());
     std::error_code ec;
@@ -753,6 +799,7 @@ String Path::getRelativePath(String base, String path)
     if (ec)
         return path;
     return String(reinterpret_cast<const char*>(result.generic_u8string().c_str()));
+#endif
 }
 
 SlangResult Path::remove(const String& path)
@@ -829,6 +876,11 @@ SlangResult Path::remove(const String& path)
         return SLANG_FAIL;
     }
 #else
+#    if SLANG_WASM
+    // nftw not available on WASI.
+    SLANG_UNUSED(path);
+    return SLANG_E_NOT_IMPLEMENTED;
+#    else
     auto unlink_cb =
         [](const char* fpath, const struct stat* sb, int typeflag, struct FTW* ftwbuf) -> int
     {
@@ -848,6 +900,7 @@ SlangResult Path::remove(const String& path)
     {
         return SLANG_FAIL;
     }
+#    endif
 #endif
 
     return SLANG_OK;
