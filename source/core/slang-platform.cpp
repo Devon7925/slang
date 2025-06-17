@@ -12,7 +12,11 @@
 #else
 #include "slang-string.h"
 
+// dlfcn.h is not available on WASI builds
+#if !defined(__wasi__)
 #include <dlfcn.h>
+#endif
+
 #endif
 
 namespace Slang
@@ -184,6 +188,41 @@ SLANG_COMPILE_TIME_ASSERT(E_OUTOFMEMORY == SLANG_E_OUT_OF_MEMORY);
     return SLANG_E_NOT_IMPLEMENTED;
 }
 
+#if defined(__wasi__)
+
+// WASI does not support dynamic libraries, so we provide stub implementations.
+
+/* static */ SlangResult SharedLibrary::loadWithPlatformPath(
+    [[maybe_unused]] char const* platformFileName,
+    Handle& handleOut)
+{
+    handleOut = nullptr;
+    return SLANG_E_NOT_IMPLEMENTED;
+}
+
+/* static */ void SharedLibrary::unload([[maybe_unused]] Handle handle)
+{
+    // Nothing to do, as we can't load anything.
+}
+
+/* static */ void* SharedLibrary::findSymbolAddressByName(
+    [[maybe_unused]] Handle handle,
+    [[maybe_unused]] char const* name)
+{
+    return nullptr;
+}
+
+/* static */ void SharedLibrary::appendPlatformFileName(
+    const UnownedStringSlice& name,
+    StringBuilder& dst)
+{
+    // WASI doesn't have a standard shared library extension.
+    // Fall back to the default behavior of just using the name.
+    dst.append(name);
+}
+
+#else // Other non-Windows builds (which have dlfcn)
+
 /* static */ SlangResult SharedLibrary::loadWithPlatformPath(
     char const* platformFileName,
     Handle& handleOut)
@@ -256,6 +295,8 @@ SLANG_COMPILE_TIME_ASSERT(E_OUTOFMEMORY == SLANG_E_OUT_OF_MEMORY);
     dst.append(name);
 #endif
 }
+
+#endif // defined(__wasi__)
 
 #endif // _WIN32
 
