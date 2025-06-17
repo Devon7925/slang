@@ -6,7 +6,7 @@
 
 #if defined(_WIN32)
 #include <windows.h>
-#elif defined(__linux__) || defined(SLANG_OSX)
+#elif (defined(__linux__) || defined(SLANG_OSX)) && !defined(__wasi__)
 #include <dlfcn.h>
 #endif
 #include <sys/stat.h>
