@@ -19,7 +19,7 @@
 
 // Enable DXIL by default unless told not to
 #ifndef SLANG_ENABLE_DXIL_SUPPORT
-#if SLANG_APPLE_FAMILY
+#if SLANG_APPLE_FAMILY || defined(__wasi__)
 #define SLANG_ENABLE_DXIL_SUPPORT 0
 #else
 #define SLANG_ENABLE_DXIL_SUPPORT 1
