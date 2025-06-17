@@ -8,9 +8,17 @@ set(WASI_SDK_PATH $ENV{WASI_SDK_PATH})
 
 # Treat WASI as the target system and use the SDK's clang wrappers
 set(CMAKE_SYSTEM_NAME WASI)
+set(CMAKE_SYSTEM_PROCESSOR wasm32)
 set(CMAKE_SYSTEM_VERSION 1)
 set(CMAKE_C_COMPILER   "${WASI_SDK_PATH}/bin/clang")
 set(CMAKE_CXX_COMPILER "${WASI_SDK_PATH}/bin/clang++")
+
+# Tell Clang/LLD to enable the threads proposal
+set(CMAKE_C_FLAGS        "-target wasm32-wasi -pthread")
+set(CMAKE_CXX_FLAGS      "-target wasm32-wasi -pthread")
+set(CMAKE_EXE_LINKER_FLAGS
+    "-target wasm32-wasi -pthread
+     -Wl,--experimental-wasi-threads")
 
 # Configure search paths for the WASI sysroot
 set(CMAKE_SYSROOT "${WASI_SDK_PATH}/share/wasi-sysroot")
