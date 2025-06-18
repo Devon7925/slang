@@ -117,6 +117,14 @@ jobs:
             echo "Only documentation files changed, skipping remaining steps"
             echo "should-run=false" >> $GITHUB_OUTPUT
           fi
+
+      # Always build and install generators for the host before any WASI/wasm build
+      - name: Build host generators (for cross builds)
+        if: steps.filter.outputs.should-run == 'true' && matrix.platform == 'wasm'
+        run: |
+          cmake --workflow --preset generators --fresh
+          mkdir -p generators
+          cmake --install build --config Release --component generators --prefix generators
       - name: Install dependencies
         run: |
           if [[ "${{ matrix.os }}" = "linux" ]]; then
