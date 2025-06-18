@@ -16,7 +16,7 @@ jobs:
         os: [linux, macos, windows]
         config: [debug, release]
         compiler: [gcc, clang, cl]
-        platform: [x86_64, aarch64, wasm]
+        platform: [x86_64, aarch64, wasm, wasi]
         exclude:
           # Default to x64, but aarch64 on osx
           - { os: linux, platform: aarch64 }
@@ -25,6 +25,9 @@ jobs:
           - { os: linux, config: debug, platform: wasm }
           - { os: windows, platform: wasm }
           - { os: macos, platform: wasm }
+          - { os: linux, config: debug, platform: wasi }
+          - { os: windows, platform: wasi }
+          - { os: macos, platform: wasi }
           # Unused compiler configs
           - { os: linux, compiler: clang }
           - { os: linux, compiler: cl }
@@ -117,14 +120,6 @@ jobs:
             echo "Only documentation files changed, skipping remaining steps"
             echo "should-run=false" >> $GITHUB_OUTPUT
           fi
-
-      # Always build and install generators for the host before any WASI/wasm build
-      - name: Build host generators (for cross builds)
-        if: steps.filter.outputs.should-run == 'true' && matrix.platform == 'wasm'
-        run: |
-          cmake --workflow --preset generators --fresh
-          mkdir -p generators
-          cmake --install build --config Release --component generators --prefix generators
       - name: Install dependencies
         run: |
           if [[ "${{ matrix.os }}" = "linux" ]]; then
@@ -164,21 +159,25 @@ jobs:
               mkdir -p "build.em/Release/bin/smoke"
               cp tests/wasm/smoke/* "build.em/Release/bin/smoke/"
 
+              # Run smoke tests for the WASM compiler
+              cd "build.em/Release/bin"
+              [ -f "slang-wasm.wasm" ]
+              [ -f "slang-wasm.js" ]
+              node smoke/smoke-test.js smoke/rand_float.slang computeMain
+          elif [[ "${{ matrix.platform }}" = "wasi" ]]; then
+              cmake --workflow --preset generators --fresh
+              mkdir generators
+              cmake --install build --config Release --component generators --prefix generators
+
               # Download and unpack WASI SDK
               wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-20/wasi-sdk-20.0-linux.tar.gz -O wasi-sdk.tar.gz
               tar -xzf wasi-sdk.tar.gz
               export WASI_SDK_PATH=$(pwd)/wasi-sdk-20.0
 
               # Build standalone WASI module for the language server
-              cmake --workflow --preset wasi --fresh
+              cmake -DSLANG_GENERATORS_PATH=generators/bin --workflow --preset wasi --fresh -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
               cmake --build --preset wasi --config Release
               [ -f "build.wasi/Release/bin/slangd.wasm" ]
-
-              # Run smoke tests for the WASM compiler
-              cd "build.em/Release/bin"
-              [ -f "slang-wasm.wasm" ]
-              [ -f "slang-wasm.js" ]
-              node smoke/smoke-test.js smoke/rand_float.slang computeMain
           else
             if [[ "${{ matrix.os }}" =~ "windows" && "${{ matrix.config }}" != "release" && "${{ matrix.config }}" != "releaseWithDebugInfo" ]]; then
               # Doing a debug build will try to link against a release built llvm, this
