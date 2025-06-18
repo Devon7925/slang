@@ -466,7 +466,7 @@ configure_package_config_file(
 # Conditionally handle the case for Emscripten where slang does not create
 # linkable targets. In this case do not export the targets. Otherwise, just
 # export the slang targets. 
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Emscripten" OR CMAKE_SYSTEM_NAME STREQUAL "WASI"))
     if(NOT ${SLANG_LIB_TYPE} STREQUAL "STATIC")
         install(
             EXPORT SlangTargets
