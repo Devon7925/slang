@@ -103,7 +103,13 @@
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/wasi-toolchain.cmake",
         "CMAKE_CONFIGURATION_TYPES": "Release",
         "SLANG_SLANG_LLVM_FLAVOR": "DISABLE",
-        "SLANG_VERSION_FULL": "0.0.0"
+        "SLANG_ENABLE_AFTERMATH": "OFF",
+        "SLANG_ENABLE_CUDA": "OFF",
+        "SLANG_ENABLE_GFX": "OFF",
+        "SLANG_ENABLE_OPTIX": "OFF",
+        "SLANG_ENABLE_REPLAYER": "OFF",
+        "SLANG_ENABLE_SLANG_RHI": "OFF",
+        "SLANG_ENABLE_TESTS": "OFF"
       }
     }
   ],
