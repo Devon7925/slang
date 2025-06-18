@@ -176,7 +176,7 @@ jobs:
               export WASI_SDK_PATH=$(pwd)/wasi-sdk-20.0
 
               # Build standalone WASI module for the language server
-              cmake -DSLANG_GENERATORS_PATH=generators/bin --workflow --preset wasi --fresh -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
+              cmake -DSLANG_GENERATORS_PATH=generators/bin --preset wasi -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
               cmake --build --preset wasi --config Release
               [ -f "build.wasi/Release/bin/slangd.wasm" ]
           else
