@@ -11,6 +11,7 @@
 
 // WASI headers
 #include <wasi/api.h>
+#include <time.h>
 
 namespace Slang
 {
@@ -109,7 +110,7 @@ private:
 {
     __wasi_subclockflags_t flags = 0;
     __wasi_timestamp_t duration = (__wasi_timestamp_t)timeInMs * 1000000;
-    __wasi_nanosleep(__WASI_CLOCKID_MONOTONIC, flags, duration, nullptr);
+    nanosleep(__WASI_CLOCKID_MONOTONIC, flags, duration, nullptr);
 }
 
 /* static */ SlangResult Process::getStdStream(StdStreamType type, RefPtr<Stream>& out)
