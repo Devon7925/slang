@@ -108,9 +108,13 @@ private:
 
 /* static */ void Process::sleepCurrentThread(Int timeInMs)
 {
-    __wasi_subclockflags_t flags = 0;
-    __wasi_timestamp_t duration = (__wasi_timestamp_t)timeInMs * 1000000;
-    nanosleep(__WASI_CLOCKID_MONOTONIC, flags, duration, nullptr);
+    struct timespec req;
+    req.tv_sec = timeInMs / 1000;
+    req.tv_nsec = (timeInMs % 1000) * 1000000;
+
+    while (nanosleep(&req, &req) == -1 && errno == EINTR) {
+        // Retry if interrupted by a signal
+    }
 }
 
 /* static */ SlangResult Process::getStdStream(StdStreamType type, RefPtr<Stream>& out)
