@@ -14,9 +14,9 @@ set(CMAKE_C_COMPILER   "${WASI_SDK_PATH}/bin/clang")
 set(CMAKE_CXX_COMPILER "${WASI_SDK_PATH}/bin/clang++")
 
 # Tell Clang/LLD to enable the threads proposal
-set(CMAKE_C_FLAGS        "-target wasm32-wasi-threads -Os")
-set(CMAKE_CXX_FLAGS      "-target wasm32-wasi-threads -Os")
-set(CMAKE_EXE_LINKER_FLAGS "-target wasm32-wasi-threads")
+set(CMAKE_C_FLAGS        "-target wasm32-wasi-threads -Os -fno-exceptions")
+set(CMAKE_CXX_FLAGS      "-target wasm32-wasi-threads -Os -fno-exceptions")
+set(CMAKE_EXE_LINKER_FLAGS "-target wasm32-wasi-threads -fno-exceptions")
 
 # Configure search paths for the WASI sysroot
 set(CMAKE_SYSROOT "${WASI_SDK_PATH}/share/wasi-sysroot")
